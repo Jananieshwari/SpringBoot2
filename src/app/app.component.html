@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Database</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .shadow {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .form-group input:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(38, 143, 255, 0.2);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .text-danger {
+      color: #dc3545;
+      font-size: 14px;
+    }
+
+    .table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    .table th, .table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .table thead {
+      background-color: #f8f9fa;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .modal-content {
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .btn-close {
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="form-wrapper">
+      <form #registerForm="ngForm" (ngSubmit)="registerCertificate(registerForm)">
+        <h4 class="text-center">Certificate Database</h4>
+        
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input id="name" required #name="ngModel" ngModel name="name" type="text"
+            class="form-control" placeholder="Enter Name">
+          <div *ngIf="name.invalid && name.touched">
+            <small class="text-danger" *ngIf="name.errors?.['required']">Required</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="issuedBy">Issued By</label>
+          <input id="issuedBy" required #issuedBy="ngModel" ngModel name="issuedBy" type="text"
+            class="form-control" placeholder="Enter Issuer Name">
+          <div *ngIf="issuedBy.invalid && issuedBy.touched">
+            <small class="text-danger" *ngIf="issuedBy.errors?.['required']">Required</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="issuedDate">Issue Date</label>
+          <input id="issuedDate" required #issuedDate="ngModel" ngModel name="issuedDate" type="date"
+            class="form-control" placeholder="Enter Issue Date">
+          <div *ngIf="issuedDate.invalid && issuedDate.touched">
+            <small class="text-danger" *ngIf="issuedDate.errors?.['required']">Required</small>
+          </div>
+        </div>
+  
+        <div class="text-center">
+          <input class="btn btn-primary" type="submit" value="Submit">
+        </div>
+      </form>
+    </div>
+    
+    <div class="mt-5">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Issued By</th>
+            <th>Issue Date</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let certificate of certificateDetails">
+            <td>{{certificate.id}}</td>
+            <td>{{certificate.name}}</td>
+            <td>{{certificate.issuedBy}}</td>
+            <td>{{certificate.issuedDate}}</td>
+            <td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" (click)="editCertificate(certificate)">Edit</button></td>
+            <td><button type="button" class="btn btn-danger" (click)="deleteCertificate(certificate)">Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title" id="editModalLabel">Update Certificate</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form #updateForm="ngForm" (ngSubmit)="updateCertificate()">
+              <h4 class="text-center">Update Certificate</h4>
+              
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input id="name" required #name="ngModel" [(ngModel)]="certificateToUpdate.name" name="name" type="text"
+                  class="form-control" placeholder="Enter Name">
+                <div *ngIf="name.invalid && name.touched">
+                  <small class="text-danger" *ngIf="name.errors?.['required']">Required</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="issuedBy">Issued By</label>
+                <input id="issuedBy" required #issuedBy="ngModel" [(ngModel)]="certificateToUpdate.issuedBy" name="issuedBy" type="text"
+                  class="form-control" placeholder="Enter Issuer Name">
+                <div *ngIf="issuedBy.invalid && issuedBy.touched">
+                  <small class="text-danger" *ngIf="issuedBy.errors?.['required']">Required</small>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="issuedDate">Issue Date</label>
+                <input id="issuedDate" required #issuedDate="ngModel" [(ngModel)]="certificateToUpdate.issuedDate" name="issuedDate" type="date"
+                  class="form-control" placeholder="Enter Issue Date">
+                <div *ngIf="issuedDate.invalid && issuedDate.touched">
+                  <small class="text-danger" *ngIf="issuedDate.errors?.['required']">Required</small>
+                </div>
+              </div>
+         
+              <div class="text-center">
+                <input class="btn btn-primary" type="submit" value="Update">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
